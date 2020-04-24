@@ -240,7 +240,7 @@ async def finished(ctx,*args):
         return
     else:
         #doing the database things
-        if( if ctx.author.permissions_in(ctx.message.channel).administrator):
+        if( ctx.author.permissions_in(ctx.message.channel).administrator):
             engine = create_engine('sqlite:///society.db')
             from models import BookRead
             Session = sessionmaker(bind=engine)
