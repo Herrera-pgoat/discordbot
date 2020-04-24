@@ -8,7 +8,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 
-
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 server = os.getenv('DISCORD_GUILD')
