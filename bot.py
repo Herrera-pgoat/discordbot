@@ -7,7 +7,23 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import sessionmaker
+import time
+from RPLCD.gpio import CharLCD
+import RPi.GPIO as GPIO
+from threading import Thread
 
+class lcdThread(Thread):
+    def __init__(self,author,message):
+        Thread.__init__(self)
+        self.author = author
+        self.message = message
+    def run(self):
+        lcd = CharLCD(cols=16, rows=2, pin_rs=22, pin_e=18, pins_data=[16, 11, 12, 15],numbering_mode=GPIO.BOARD)
+        lcd.write_string(self.message)
+        lcd.cursor_pos = (1,0)
+        lcd.write_string(self.author)
+        GPIO.cleanup()
+        
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 server = os.getenv('DISCORD_GUILD')
@@ -24,7 +40,11 @@ async def on_ready():
 
 #Here we only enter when the name is in there
 @bot.command(name='pot', help='!pot returns potato')
-async def pot(ctx):
+async def pot(ctx,*args):
+    name = ctx.author.name
+    message = ' '.join(args)
+    words=lcdThread(name,message)
+    words.start()
     await ctx.send('potato')
     await ctx.send('second potato')
 
