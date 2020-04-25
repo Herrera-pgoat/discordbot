@@ -17,12 +17,33 @@ class lcdThread(Thread):
         Thread.__init__(self)
         self.author = author
         self.message = message
+        self.users = {'Decunut':3,'quicho':5}
     def run(self):
+        #This is so that the light works 
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BOARD)
+        userLightColor = 3
+        if self.author in self.users:
+            userLightColor = self.users[self.author]
+        GPIO.setup(userLightColor,GPIO.OUT)
+        GPIO.output(userLightColor,True)
+    
+        #this is the lcd stuff
         lcd = CharLCD(cols=16, rows=2, pin_rs=22, pin_e=18, pins_data=[16, 11, 12, 15],numbering_mode=GPIO.BOARD)
-        lcd.write_string(self.message)
         lcd.cursor_pos = (1,0)
         lcd.write_string(self.author)
-        GPIO.cleanup()
+        for i in range(0,2):
+            currentPositionLCD = 0
+            for char in self.message:
+                lcd.cursor_pos = (0,currentPositionLCD)
+                #increasing the cursor position
+                currentPositionLCD +=1
+                currentPositionLCD = currentPositionLCD % 16
+                lcd.write_string(char)
+                time.sleep(.1)
+            time.sleep(.5)
+        GPIO.output(userLightColor,False)
+        lcd.clear()
         
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -38,13 +59,24 @@ bot = discord.ext.commands.Bot(command_prefix="!",case_insensitive=True)
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
 
+@bot.event
+async def on_message(message):
+    me = 'cofee'
+    everyone = message.mention_everyone
+    for mention in message.mentions:
+        if mention.name == me or everyone:
+            name = message.author.name
+            print(name)
+            messageCon = message.content
+            print(messageCon)
+            words=lcdThread(name,messageCon)
+            words.start()
+            break
+    
+
 #Here we only enter when the name is in there
 @bot.command(name='pot', help='!pot returns potato')
 async def pot(ctx,*args):
-    name = ctx.author.name
-    message = ' '.join(args)
-    words=lcdThread(name,message)
-    words.start()
     await ctx.send('potato')
     await ctx.send('second potato')
 
