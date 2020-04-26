@@ -59,20 +59,15 @@ bot = discord.ext.commands.Bot(command_prefix="!",case_insensitive=True)
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
 
-@bot.event
-async def on_message(message):
-    me = 'cofee'
-    everyone = message.mention_everyone
-    for mention in message.mentions:
-        if mention.name == me or everyone:
-            name = message.author.name
-            print(name)
-            messageCon = message.content
-            print(messageCon)
-            words=lcdThread(name,messageCon)
-            words.start()
-            break
-    
+#Here we only enter when the name is in there
+@bot.command(name='cofee', help='!cofee <args> lights a light on cofees room and puts the message on a screen')
+async def cofee(ctx,*args):
+    name = ctx.message.author.name
+    print(ctx.message.author.id)
+    messageCon = ' '.join(args)
+    print(messageCon)
+    words=lcdThread(name,messageCon)
+    words.start()    
 
 #Here we only enter when the name is in there
 @bot.command(name='pot', help='!pot returns potato')
